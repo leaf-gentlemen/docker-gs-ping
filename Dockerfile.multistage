@@ -9,9 +9,12 @@ FROM golang:1.19 AS build-stage
 WORKDIR /app
 
 COPY go.mod go.sum ./
-RUN go mod download
 
 COPY *.go ./
+
+RUN go env -w GOPROXY=https://goproxy.cn,direct
+
+RUN go mod download
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-gs-ping
 
@@ -33,7 +36,5 @@ WORKDIR /
 COPY --from=build-stage /docker-gs-ping /docker-gs-ping
 
 EXPOSE 8080
-
-USER nonroot:nonroot
 
 ENTRYPOINT ["/docker-gs-ping"]
